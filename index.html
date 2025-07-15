@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taxi Service</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Ctext y='60' font-size='60'%3E%F0%9F%9A%95%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <img src="logo504.png" alt="504 Taxi Logo" class="logo-img">
+    </div>
+    <div class="header-right">
+      <div class="header-contacts">
+        <span><i class="fa-solid fa-mobile-screen"></i> <a href="tel:+380504504504">+38 (050) 450-45-04</a></span>
+        <span><i class="fa-solid fa-at"></i> <a href="mailto:info@504.taxi">info@504.taxi</a></span>
+        <span><i class="fa-solid fa-stopwatch"></i> <span data-i18n="work_hours">24/7</span></span>
+      </div>
+      <div class="header-messengers">
+        <a href="viber://chat?number=+380504504504" target="_blank" title="Viber"><i class="fa-brands fa-viber"></i></a>
+        <a href="https://t.me/uklon_rider_support_ua_bot" target="_blank" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+        <a href="https://wa.me/380504504504" target="_blank" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+      </div>
+      <!-- Видалено блок перемикача мов -->
+    </div>
+  </header>
+  <!-- End Header -->
+  <div class="app-container">
+    <!-- Навігація (адаптивна) -->
+    <nav class="main-nav modern-nav" aria-label="Головна навігація">
+      <button class="tab-btn" data-tab="profile" aria-label="Профіль" aria-controls="profile" aria-selected="true"><i class="fa-solid fa-id-card"></i><span class="nav-label">Профіль</span></button>
+      <button class="tab-btn" data-tab="order-section" aria-label="Замовлення таксі" aria-controls="order-section" aria-selected="false"><i class="fa-solid fa-car-side"></i><span class="nav-label">Замовлення</span></button>
+      <button class="tab-btn" data-tab="history" aria-label="Історія поїздок" aria-controls="history" aria-selected="false"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-label">Історія</span></button>
+    </nav>
+    <main>
+      <section id="profile" class="tab-section" aria-labelledby="profile-tab">
+        <div class="profile-warning modern-profile-warning" style="margin-bottom: 24px; text-align: center;">
+          Щоб замовити таксі, потрібно заповнити профіль (ім’я та email)
+        </div>
+        <div class="profile-card modern-profile-card">
+          <div class="profile-photo-block">
+            <div class="profile-photo-wrap modern-photo-wrap" id="profile-photo-dropzone">
+              <img id="profile-photo" src="https://i.imgur.com/1Q9Z1Zm.png" alt="Фото профілю" aria-label="Фото профілю" title="Змінити фото">
+              <input type="file" id="photo-upload" accept="image/*" style="display:none;">
+              <button id="edit-photo" title="Змінити фото" aria-label="Змінити фото"><i class="fa-solid fa-image"></i></button>
+              <label for="photo-upload" id="photo-upload-label" style="display:none;">Завантажити фото</label>
+            </div>
+          </div>
+          <form class="profile-info modern-profile-info" autocomplete="off" onsubmit="return false;">
+            <div class="profile-field">
+              <label for="profile-name" data-i18n="name"><i class="fa-solid fa-id-card"></i> Ім’я</label>
+              <input id="profile-name" type="text" placeholder="Ваше ім’я" autocomplete="off">
+            </div>
+            <div class="profile-field">
+              <label for="profile-email" data-i18n="email"><i class="fa-solid fa-at"></i> Email</label>
+              <input id="profile-email" type="email" placeholder="you@email.com" autocomplete="off">
+            </div>
+            <div class="profile-field">
+              <label for="profile-phone"><i class="fa-solid fa-mobile-screen"></i> Телефон</label>
+              <input id="profile-phone" type="tel" placeholder="+380..." autocomplete="off">
+            </div>
+            <button id="save-profile" class="main-btn modern-save-btn" data-i18n="save"><i class="fa-solid fa-circle-check"></i> Зберегти профіль</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="order-section" class="tab-section" aria-labelledby="order-section-tab">
+        <button id="order-taxi-btn" class="main-btn dark-order-btn"><i class="fa-solid fa-car-side"></i> Замовити таксі</button>
+        <form id="order-form" class="order-form-modern" style="display:none;">
+          <div class="order-fields">
+            <div class="order-field">
+              <label for="order-from"><i class="fa-solid fa-map-pin"></i> Звідки</label>
+              <div class="input-with-btn">
+                <input id="order-from" type="text" placeholder="Введіть адресу...">
+              </div>
+            </div>
+            <div class="order-field">
+              <label for="order-to"><i class="fa-solid fa-map-pin"></i> Куди</label>
+              <div class="input-with-btn">
+                <input id="order-to" type="text" placeholder="Введіть адресу...">
+              </div>
+            </div>
+            <div class="order-btns-block">
+              <button type="button" id="map-pick-main-btn" class="main-btn map-btn"><i class="fa-solid fa-location-arrow"></i> Вибрати адресу на мапі</button>
+              <button type="button" id="calc-route-btn" class="main-btn calc-btn"><i class="fa-solid fa-gauge"></i> Розрахувати маршрут</button>
+            </div>
+            <div id="order-map" class="order-map-modern"></div>
+            <div id="route-info" class="route-info-block" style="display:none"></div>
+            <div id="waypoints-container"></div>
+            <button type="button" id="add-waypoint" class="main-btn add-waypoint-btn"><i class="fa-solid fa-circle-plus"></i> Додати зупинку</button>
+            <div class="order-section-block">
+              <div class="block-title"><i class="fa-solid fa-car-side"></i> Клас авто</div>
+              <select id="car-type">
+                <option value="econom">Економ</option>
+                <option value="comfort">Комфорт</option>
+                <option value="lux">Люкс</option>
+              </select>
+            </div>
+            <div class="order-section-block">
+              <div class="block-title"><i class="fa-solid fa-money-check"></i> Оплата</div>
+              <div class="payment-methods">
+                <label><input type="radio" name="payment" id="payment-cash" value="cash" checked> Готівка</label>
+                <label><input type="radio" name="payment" id="payment-card" value="card"> Картка</label>
+              </div>
+              <div id="card-fields" style="display:none; margin-top:14px;">
+                <div class="order-field">
+                  <label for="card-number"><i class="fa-solid fa-credit-card"></i> Номер картки</label>
+                  <input id="card-number" type="text" inputmode="numeric" pattern="[0-9 ]{16,19}" maxlength="19" placeholder="0000 0000 0000 0000">
+                </div>
+                <div class="order-field" style="display:flex; gap:12px;">
+                  <div style="flex:2;">
+                    <label for="card-exp"><i class="fa-solid fa-calendar"></i> Термін дії</label>
+                    <input id="card-exp" type="text" inputmode="numeric" pattern="[0-9/]{5}" maxlength="5" placeholder="MM/YY">
+                  </div>
+                  <div style="flex:1;">
+                    <label for="card-cvv"><i class="fa-solid fa-lock"></i> CVV</label>
+                    <input id="card-cvv" type="password" inputmode="numeric" pattern="[0-9]{3}" maxlength="3" placeholder="CVV">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="order-section-block">
+              <div class="block-title"><i class="fa-solid fa-fan"></i> Побажання</div>
+              <div class="order-extras">
+                <label><input type="checkbox" id="extra-childseat"> <i class="fa-solid fa-child"></i> Дитяче крісло</label>
+                <label><input type="checkbox" id="extra-pet"> <i class="fa-solid fa-paw"></i> Тварина</label>
+                <label><input type="checkbox" id="extra-ac"> <i class="fa-solid fa-fan"></i> Кондиціонер</label>
+              </div>
+            </div>
+            <div class="order-section-block">
+              <div class="block-title"><i class="fa-solid fa-message"></i> Коментар</div>
+              <input id="order-comment" type="text" placeholder="Побажання до поїздки...">
+            </div>
+          </div>
+          <button type="submit" class="main-btn confirm-order-btn"><i class="fa-solid fa-circle-check"></i> Підтвердити замовлення</button>
+        </form>
+      </section>
+      <section id="history" class="tab-section" aria-labelledby="history-tab">
+        <h2 data-i18n="trip_history">Історія поїздок</h2>
+        <div id="trips-list"></div>
+      </section>
+    </main>
+    <div id="popup" class="popup"></div>
+    <!-- Popup для вибору аватарки видалено, бо вибір тепер у профілі -->
+    <div id="order-details-popup" class="order-details-popup" style="display:none"></div>
+    <div id="review-popup" class="review-popup" style="display:none"></div>
+    <button id="scroll-top-btn" title="Вгору" style="display:none;"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-main">
+      <div class="footer-about">
+        <span class="footer-logo"><i class="fa-solid fa-taxi"></i> 504 Taxi</span>
+        <span class="footer-desc">WOW-сервіс таксі 24/7</span>
+      </div>
+      <div class="footer-contacts">
+        <span><i class="fa-solid fa-phone"></i> <a href="tel:+380504504504">+38 (050) 450-45-04</a></span>
+        <span><i class="fa-solid fa-at"></i> <a href="mailto:info@504.taxi">info@504.taxi</a></span>
+      </div>
+      <div class="footer-reviews">
+        <span class="footer-review"><i class="fa-solid fa-star"></i> Олена: "Все супер!"</span>
+        <span class="footer-review"><i class="fa-solid fa-star"></i> Ігор: "Зручно і швидко"</span>
+        <span class="footer-review"><i class="fa-solid fa-star"></i> Світлана: "Рекомендую!"</span>
+      </div>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html> 
